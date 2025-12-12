@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - UPGB Recovery Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="dashboard-container container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h3>Recovery Dept.</h3>
+            <nav>
+                <a class="nav-link active" onclick="showSection('send-msg')"><i class="fas fa-paper-plane"></i> Send
+                    Message</a>
+                <a class="nav-link" onclick="showSection('history')"><i class="fas fa-history"></i> Status History</a>
+                <a class="nav-link" onclick="showSection('contacts')"><i class="fas fa-users"></i> Contacts</a>
+                <a class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Stats Row -->
+            <div class="stats-container">
+                <div class="stat-card" style="border-left-color: #007bff;">
+                    <div class="stat-info">
+                        <h4>Total Sent</h4>
+                        <p id="stat-total">0</p>
+                    </div>
+                    <i class="fas fa-paper-plane" style="color: #007bff;"></i>
+                </div>
+                <div class="stat-card" style="border-left-color: #28a745;">
+                    <div class="stat-info">
+                        <h4>Delivered</h4>
+                        <p id="stat-delivered">0</p>
+                    </div>
+                    <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                </div>
+                <div class="stat-card" style="border-left-color: #dc3545;">
+                    <div class="stat-info">
+                        <h4>Pending/Failed</h4>
+                        <p id="stat-failed">0</p>
+                    </div>
+                    <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+                </div>
+            </div>
+
+            <!-- Send Message Section -->
+            <section id="send-msg-section">
+                <h2>Send Communication</h2>
+                <form id="sendForm">
+                    <div class="form-group">
+                        <label for="recipientType">Select Recipient Group (Data Role)</label>
+                        <select id="recipientType" onchange="handlePropetaryGroupChange()">
+                            <option value="">-- Select Group --</option>
+                            <option value="all">All Staff</option>
+                            <!-- Dynamic Roles populated via JS -->
+                        </select>
+                    </div>
+
+                    <!-- Recipient Review Container -->
+                    <div id="recipient-review-container" class="hidden" style="margin-top: 1rem;">
+                        <label>Review Recipients</label>
+
+                        <div class="review-controls">
+                            <input type="text" id="recipientSearch" placeholder="Search name/role...">
+                            <button type="button" onclick="selectAllRecipients(true)">All</button>
+                            <button type="button" onclick="selectAllRecipients(false)">None</button>
+                        </div>
+
+                        <div id="recipientReviewList"
+                            style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 0.5rem; border-radius: 4px;">
+                            <!-- Checkboxes populated via JS -->
+                            <p style="color: #666; font-size: 0.9rem;">Select a Group first</p>
+                        </div>
+                        <p id="selected-count"
+                            style="text-align: right; font-size: 0.8rem; margin-top: 0.25rem; color: #666;">0 selected
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="senderDept">Department</label>
+                        <select id="senderDept" onchange="toggleOtherDept()">
+                            <option value="Recovery">Recovery (Default)</option>
+                            <option value="HR">HR</option>
+                            <option value="Operation">Operation</option>
+                            <option value="FI">FI</option>
+                            <option value="Advance">Advance</option>
+                            <option value="Vigilance">Vigilance</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label for="messageType">Message Type</label>
+                        <select id="messageType" onchange="toggleFileInput()">
+                            <option value="text">WhatsApp Text Message</option>
+                            <option value="file">Excel File / Document</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="text-input-group">
+                        <label for="messageBody">Message</label>
+                        <textarea id="messageBody" rows="5" placeholder="Type your instruction here..."></textarea>
+                    </div>
+
+                    <div class="form-group hidden" id="file-input-group">
+                        <label for="fileAttachment">Upload Excel Sheet</label>
+                        <input type="file" id="fileAttachment" accept=".xlsx, .xls, .csv">
+                        <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">Note: File status check is
+                            limited to successful dispatch.</p>
+                    </div>
+
+                    <button type="submit" id="sendBtn">Send Broadcast</button>
+                </form>
+            </section>
+
+            <!-- Status History Section -->
+            <section id="history-section" class="hidden">
+                <h2>Communication Status</h2>
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <button onclick="refreshStatus()" style="width: auto; padding: 0.5rem 1rem;">Refresh Status</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Recipient</th>
+                            <th>Type</th>
+                            <th>Content</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statusTableBody">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Contacts Section -->
+            <section id="contacts-section" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Staff Directory</h2>
+                    <button onclick="toggleAddContact()" style="width: auto; padding: 0.5rem 1rem;"><i
+                            class="fas fa-plus"></i> Add New</button>
+                </div>
+
+                <!-- Add Contact Form -->
+                <div id="add-contact-form" class="hidden"
+                    style="background: #f1f1f1; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <h3>Add New Staff</h3>
+                    <form onsubmit="saveNewContact(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <input type="hidden" id="originalMobile"> <!-- Store original mobile for edits -->
+                            <input type="text" id="newMetricName" placeholder="Name" required>
+                            <input type="text" id="newMetricMobile" placeholder="Mobile (e.g. 919999999999)" required>
+                            <input type="text" id="newMetricRole" placeholder="Role (e.g. BM, Clerk)" list="roleList"
+                                required>
+                            <datalist id="roleList"></datalist>
+                            <input type="text" id="newMetricBranch" placeholder="Branch Name" required>
+                            <input type="text" id="newMetricDistrict" placeholder="District" required>
+                        </div>
+                        <div style="margin-top: 1rem; text-align: right;">
+                            <button type="button" onclick="toggleAddContact()"
+                                style="background: #666; width: auto;">Cancel</button>
+                            <button type="submit" style="width: auto;">Save Contact</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="contacts-list">
+                    <p>Loading from database...</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
