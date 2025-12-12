@@ -376,18 +376,10 @@ function animateValue(id, start, end, duration) {
 }
 
 // Login
-const loginForm = document.getElementById('loginForm');
-if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const user = document.getElementById('username').value;
-        const pass = document.getElementById('password').value;
-        if (user === 'admin' && pass === 'admin123') {
-            window.location.href = 'dashboard.html';
-        } else {
-            document.getElementById('error-msg').style.display = 'block';
-        }
-    });
+// Login
+// Logout
+function logout() {
+    window.location.href = 'index.html';
 }
 
 // Main Send Logic
@@ -418,8 +410,6 @@ if (sendForm) {
         const deptSelect = document.getElementById('senderDept').value;
         const dept = deptSelect === 'Other' ? document.getElementById('otherDeptInput').value : deptSelect;
 
-
-
         const type = document.getElementById('messageType').value;
         const content = document.getElementById('messageBody').value;
 
@@ -429,7 +419,6 @@ if (sendForm) {
             targetMobiles: targetMobiles,
             message: content,
             department: dept,
-
             isFile: type === 'file'
         };
 
